@@ -26,6 +26,10 @@ locals {
 
 resource "aws_eks_cluster" "this" {
   count = local.create ? 1 : 0
+  # needed for outposts
+  lifecycle {
+    ignore_changes = [access_config] 
+  }
 
   name                      = var.cluster_name
   role_arn                  = local.cluster_role
@@ -40,7 +44,12 @@ resource "aws_eks_cluster" "this" {
     # same functionality, we will do that through an access entry which can be
     # enabled or disabled at any time of their choosing using the variable
     # var.enable_cluster_creator_admin_permissions
-    bootstrap_cluster_creator_admin_permissions = false
+    # Error: creating EKS Cluster (): operation error EKS: CreateCluster, 
+    # https response error StatusCode: 400, RequestID: xxx, 
+    # InvalidParameterException: Local Amazon EKS cluster only supports 
+    # bootstrapClusterCreatorAdminPermissions=true 
+    # and authenticationMode=CONFIG_MAP for AccessConfig.
+    bootstrap_cluster_creator_admin_permissions = var.bootstrap_cluster_creator_admin_permissions
   }
 
   vpc_config {
@@ -68,6 +77,13 @@ resource "aws_eks_cluster" "this" {
     content {
       control_plane_instance_type = outpost_config.value.control_plane_instance_type
       outpost_arns                = outpost_config.value.outpost_arns
+      dynamic "control_plane_placement" {
+        for_each = outpost_config.value.control_plane_placement == false ? [] : [1]
+
+        content {
+          group_name = aws_placement_group.this[0].name
+        }
+      }
     }
   }
 
@@ -102,6 +118,19 @@ resource "aws_eks_cluster" "this" {
     aws_cloudwatch_log_group.this,
     aws_iam_policy.cni_ipv6_policy,
   ]
+}
+
+## needed on outposts to place the control plane in different hosts
+resource "aws_placement_group" "this" {
+  count        = local.create_outposts_local_cluster ? 1 : 0
+  name         = var.cluster_name
+  strategy     = "spread"
+  spread_level = "host"
+  tags = merge(
+    { terraform-aws-modules = "eks" },
+    var.tags,
+    var.cluster_tags,
+  )
 }
 
 resource "aws_ec2_tag" "cluster_primary_security_group" {

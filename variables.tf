@@ -152,6 +152,12 @@ variable "enable_cluster_creator_admin_permissions" {
   default     = false
 }
 
+variable "bootstrap_cluster_creator_admin_permissions" {
+  description = "Indicates whether or not to add the cluster creator (the identity used by Terraform) as an administrator via access entry during bootstrap"
+  type        = bool
+  default     = false
+}
+
 ################################################################################
 # KMS Key
 ################################################################################
