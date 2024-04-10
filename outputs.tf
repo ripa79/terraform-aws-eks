@@ -5,16 +5,31 @@
 output "cluster_arn" {
   description = "The Amazon Resource Name (ARN) of the cluster"
   value       = try(aws_eks_cluster.this[0].arn, null)
+
+  depends_on = [
+    aws_eks_access_entry.this,
+    aws_eks_access_policy_association.this,
+  ]
 }
 
 output "cluster_certificate_authority_data" {
   description = "Base64 encoded certificate data required to communicate with the cluster"
   value       = try(aws_eks_cluster.this[0].certificate_authority[0].data, null)
+
+  depends_on = [
+    aws_eks_access_entry.this,
+    aws_eks_access_policy_association.this,
+  ]
 }
 
 output "cluster_endpoint" {
   description = "Endpoint for your Kubernetes API server"
   value       = try(aws_eks_cluster.this[0].endpoint, null)
+
+  depends_on = [
+    aws_eks_access_entry.this,
+    aws_eks_access_policy_association.this,
+  ]
 }
 
 output "cluster_id" {
@@ -25,6 +40,11 @@ output "cluster_id" {
 output "cluster_name" {
   description = "The name of the EKS cluster"
   value       = try(aws_eks_cluster.this[0].name, "")
+
+  depends_on = [
+    aws_eks_access_entry.this,
+    aws_eks_access_policy_association.this,
+  ]
 }
 
 output "cluster_oidc_issuer_url" {
@@ -50,6 +70,16 @@ output "cluster_status" {
 output "cluster_primary_security_group_id" {
   description = "Cluster security group that was created by Amazon EKS for the cluster. Managed node groups use this security group for control-plane-to-data-plane communication. Referred to as 'Cluster security group' in the EKS console"
   value       = try(aws_eks_cluster.this[0].vpc_config[0].cluster_security_group_id, null)
+}
+
+output "cluster_service_cidr" {
+  description = "The CIDR block where Kubernetes pod and service IP addresses are assigned from"
+  value       = try(aws_eks_cluster.this[0].kubernetes_network_config[0].service_ipv4_cidr, aws_eks_cluster.this[0].kubernetes_network_config[0].service_ipv6_cidr, null)
+}
+
+output "cluster_ip_family" {
+  description = "The IP family used by the cluster (e.g. `ipv4` or `ipv6`)"
+  value       = try(aws_eks_cluster.this[0].kubernetes_network_config[0].ip_family, null)
 }
 
 ################################################################################

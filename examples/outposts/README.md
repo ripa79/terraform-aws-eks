@@ -37,9 +37,6 @@ $ terraform apply
 Note that this example may create resources which cost money. Run `terraform destroy` when you don't need these resources.
 
 ```bash
-# Necessary to avoid removing Terraform's permissions too soon before its finished
-# cleaning up the resources it deployed inside the clsuter
-terraform state rm 'module.eks.aws_eks_access_entry.this["cluster_creator_admin"]' || true
 terraform destroy
 ```
 
@@ -48,15 +45,15 @@ terraform destroy
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.38 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.2 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.40 |
 | <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | >= 2.20 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.38 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.40 |
 | <a name="provider_kubernetes"></a> [kubernetes](#provider\_kubernetes) | >= 2.20 |
 
 ## Modules
