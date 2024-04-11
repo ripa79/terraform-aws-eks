@@ -28,7 +28,7 @@ resource "aws_eks_cluster" "this" {
   count = local.create ? 1 : 0
   # needed for outposts
   lifecycle {
-    ignore_changes = [access_config] 
+    ignore_changes = [access_config]
   }
 
   name                      = var.cluster_name
